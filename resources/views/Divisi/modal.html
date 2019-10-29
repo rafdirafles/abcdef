@@ -1,0 +1,93 @@
+<td><button class="btn btn-info" data-mytitle="{{$data->nama_devisi}}" data-mydescription="{{$data->unit_kerja->nama_unit_kerja}}" data-catid={{$data->id}} data-toggle="modal" data-target="#edit">Edit</button>
+									/
+<button class="btn btn-danger" data-catid="{{$data->id}}" data-toggle="modal" data-target="#delete">Delete</button>
+</td>
+
+<!-- edit modal -->
+<div class="modal fade" id="edit" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="myModalLabel">Edit Category</h4>
+        </div>
+        <form action="{{route('divisi.update','test')}}" method="post">
+                {{method_field('patch')}}
+                {{csrf_field()}}
+            <div class="modal-body">
+                    <input type="hidden" name="category_id" id="cat_id" value="">
+                    <div class="form-group">
+                        <label for="title">Title</label>
+                        <input type="text" class="form-control" name="title" id="title">
+                    </div>
+                    <select id="selection" class="form-control @error('id_unit_kerja') is-invalid @enderror" value="{{ old('id_unit_kerja') }}" name="id_unit_kerja" id="sel1">
+                        <option>select unit kerja</option>
+                        @foreach ($unit as $data)
+                            <option value="{{$data->id}}">{{$data->nama_unit_kerja}}</option>
+                        @endforeach
+                    </select>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              <button type="submit" class="btn btn-primary">Save Changes</button>
+            </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+<!-- delete modal -->
+<div class="modal modal-danger fade" id="delete" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title text-center" id="myModalLabel">Delete Confirmation</h4>
+        </div>
+        <form action="{{route('category.destroy','test')}}" method="post">
+                {{method_field('delete')}}
+                {{csrf_field()}}
+            <div class="modal-body">
+                  <p class="text-center">
+                      Are you sure you want to delete this?
+                  </p>
+                    <input type="hidden" name="category_id" id="cat_id" value="">
+  
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-success" data-dismiss="modal">No, Cancel</button>
+              <button type="submit" class="btn btn-warning">Yes, Delete</button>
+            </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  
+<script>
+  
+    $('#edit').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget) 
+        var title = button.data('mytitle') 
+        console.log(title);
+        var description = button.data('mydescription') 
+        console.log(description);
+        var cat_id = button.data('catid') 
+        var modal = $(this)
+        modal.find('.modal-body #title').val(title);
+        modal.find('.modal-body #selection').val(description);
+        modal.find('.modal-body #cat_id').val(cat_id);
+        
+        $('.elect-dropdown').val(description);
+    })
+
+
+    // delete
+    $('#delete').on('show.bs.modal', function (event) {
+      var button = $(event.relatedTarget) 
+      var cat_id = button.data('catid') 
+      var modal = $(this)
+      modal.find('.modal-body #cat_id').val(cat_id);
+})
+</script>  
+
+
