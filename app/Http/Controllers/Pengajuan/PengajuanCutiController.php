@@ -13,9 +13,12 @@ use App\Pengajuan_cuti;
 use App\User;
 use DatePeriod;
 use DateInterval;
-date_default_timezone_set('Asia/Jakarta');
 class PengajuanCutiController extends Controller
 {
+    // 0 =pending
+    // 1 =acc
+    // 2 =tolak
+    // 3 =selesai
     /**
      * Display a listing of the resource.
      *
@@ -23,18 +26,21 @@ class PengajuanCutiController extends Controller
      */
     public function index()
     {
+        date_default_timezone_set('Asia/Jakarta');
         $now=date("Y-m-d");
         $tgl_selesai_c=Cuti::all();
         foreach($tgl_selesai_c as $hapus_selesai){
             if($hapus_selesai->tgl_selesai == $now){
-                $delete_cuti_habis=Cuti::where('tgl_selesai',$now);
-                $delete_cuti_habis->delete();
+                $selesai=Cuti::where('tgl_selesai',$now);
+                $selesai->update([
+                    'status'=>3
+                ]);
             }
         }
         $pegawais=User::all();
         $jenis_cuti=Jenis_cuti::all();
         $data=Cuti::where('status',1)->with('jenis_cuti')->get();
-        $P_cuti=Cuti::where('status',0)->with('jenis_cuti')->get();
+        $P_cuti=Cuti::where('status','!=',1)->with('jenis_cuti')->get();
         return view('Pengajuan.cuti.index',compact('data','jenis_cuti','pegawais','P_cuti'));
 
     }
@@ -57,15 +63,31 @@ class PengajuanCutiController extends Controller
      */
     public function store(Request $request)
     {
-
+        $this->validate($request,[
+            'nip_nrp'=>'required',
+            'id_jenis_cuti'=>'required',
+            'tgl_mulai'=>'required',
+            'tgl_selesai'=>'required',
+            'file' =>'mimes:pdf|max:10000',
+            'keterangan'=>'required',
+        ]);
+        $file = $request->file('file');
+        $text = str_replace(' ', '',$file->getClientOriginalName());
+        $nama_file = time()."_".$text;
+        $tujuan_upload = 'file';
+        $file->move($tujuan_upload,$nama_file);
+        date_default_timezone_set('Asia/Jakarta');
         $now=date("Y");
         $start_date = new DateTime($request->tgl_mulai);
         $end_date = new DateTime($request->tgl_selesai);
         $interval = $start_date->diff($end_date);
         $hasil=$interval->days;
         if($request->tgl_selesai <= date("Y-m-d")){
-            return 'ngawur';
+            return redirect()->back()->with('alert', 'Maaf Salah input tanggal');
         }
+        // if($request->tgl_mulai <= date("Y-m-d")){
+        //     return redirect()->back()->with('alert', 'Maaf Salah input tanggal');
+        // }
         $jenis_cutis=Jenis_cuti::all();
         foreach($jenis_cutis as $jenis){
             if($jenis->id == $request->id_jenis_cuti){
@@ -94,15 +116,16 @@ class PengajuanCutiController extends Controller
                             'tgl_selesai'=>$request->tgl_selesai,
                             'status'=>'0',
                             'jumlah'=>$hasil,
+                            'file'=>$nama_file,
                             'keterangan'=>$request->keterangan,
                         ]);
                     }
                     else{
-                         return 'maaf input cuti melebihi batass';
+                        return redirect()->back()->with('alert', 'Maaf Salah input Melebihi batas cuti');
                     }
                 }
                 else{
-                    return 'maaf input cuti melebihi batass';
+                    return redirect()->back()->with('alert', 'Maaf Salah input Melebihi batas cuti');
                 }
 
             }
@@ -163,7 +186,7 @@ class PengajuanCutiController extends Controller
         //         return 'maaf input cuti melebihi batass';
         //     }
         // }
-        return back();
+        return redirect()->back()->with('succes', 'Data Berhasil Ditambahkan');
         // return $request->all();
     }
 
@@ -198,9 +221,8 @@ class PengajuanCutiController extends Controller
      */
     public function update(Request $request, $id)
     {
-
+        date_default_timezone_set('Asia/Jakarta');
         $datas=Cuti::where('id',$request->id);
-        $now=date("Y");
         // $z=0;
         // if($request->jenis_cuti==1){
         //     $datas=Cuti::where('nip_nrp',$id)->where('status','1')->get();
@@ -260,10 +282,11 @@ class PengajuanCutiController extends Controller
         //     return back();
         //     return back();
         // }
-        $start_date = new DateTime($request->tgl_mulai);
-        $end_date = new DateTime($request->tgl_selesai);
-        $interval = $start_date->diff($end_date);
-        $hasil=$interval->days;
+        $now=date("Y");
+        // return $now;
+        $dump=Cuti::where('id',$request->id)->first();
+        $hasil=$dump->jumlah;
+
         $jenis_cutis=Jenis_cuti::all();
         foreach($jenis_cutis as $jenis){
             if($jenis->id == $request->jenis_cuti){
@@ -271,13 +294,14 @@ class PengajuanCutiController extends Controller
                 $lama_cuti=$sum->lama_cuti;
                 if($hasil <=$lama_cuti)
                 {
-                    $data=Cuti::where('nip_nrp',$request->nip_nrp)->count();
+                    $data=Cuti::where('nip_nrp',$id)->count();
                     if($data == 0){
                         $sum=$hasil;
+
                     }
                     else{
                         $z=0;
-                        $data=Cuti::where('nip_nrp',$request->nip_nrp)->where('status','1')->where('id_jenis_cuti',$request->jenis_cuti)->whereYear('created_at', '=', $now)->get();
+                        $data=Cuti::where('nip_nrp',$id)->where('status','1')->where('id_jenis_cuti',$request->jenis_cuti)->whereYear('created_at',$now)->get();
                         for($i=0;$i<count($data);$i++){
                             $z+=$data[$i]['jumlah'];
                         }
@@ -290,10 +314,10 @@ class PengajuanCutiController extends Controller
                         ]);
                         $absensi=Cuti::where('id',$request->id)->first();
                         $p_email=$absensi->User->email;
-                        Mail::send('Pengajuan.send_email.index', ['tgl_mulai' => $absensi->tgl_mulai, 'tgl_selesai' => $absensi->tgl_selesai], function($message) use ($p_email) {
-                            $message->to($p_email, 'Receiver Name')
-                                ->subject('Pemberitahuan ACC cuti');
-                        });
+                        // Mail::send('Pengajuan.send_email.index', ['tgl_mulai' => $absensi->tgl_mulai, 'tgl_selesai' => $absensi->tgl_selesai], function($message) use ($p_email) {
+                        //     $message->to($p_email, 'Receiver Name')
+                        //         ->subject('Pemberitahuan ACC cuti');
+                        // });
                         $start_date = new DateTime($absensi->tgl_mulai);
                         $end_date = new DateTime($absensi->tgl_selesai);
                         $interval = new DateInterval('P1D');
@@ -334,12 +358,19 @@ class PengajuanCutiController extends Controller
         $datas=Cuti::where('id',$id);
         $absensi=Cuti::where('id',$id)->first();
         $p_email=$absensi->User->email;
-        Mail::send('Pengajuan.send_email.tolak', ['tgl_mulai' => $absensi->tgl_mulai, 'tgl_selesai' => $absensi->tgl_selesai], function($message) use ($p_email) {
-            $message->to($p_email, 'Receiver Name')
-                ->subject('Pemberitahuan ACC cuti');
-        });
+        // Mail::send('Pengajuan.send_email.tolak', ['tgl_mulai' => $absensi->tgl_mulai, 'tgl_selesai' => $absensi->tgl_selesai], function($message) use ($p_email) {
+        //     $message->to($p_email, 'Receiver Name')
+        //         ->subject('Pemberitahuan ACC cuti');
+        // });
         $datas->delete();
         return back();
 
+    }
+    public function tolak_cuti(Request $request){
+        $data=Cuti::findOrFail($request->id);
+        $data->update([
+            'status'=>2,
+        ]);
+        return back()->with('succes','Cuti berhasil ditolak');
     }
 }

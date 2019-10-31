@@ -3386,7 +3386,6 @@
                                             .append('<span class="help-block"><strong>'+value+'</strong></span>');
                                     })
                                 }
-
                     },
                 complete: function(){
                     $('.ajax-loader').css("visibility", "hidden");
