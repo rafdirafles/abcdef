@@ -19,7 +19,22 @@ class PengajuanCutiPegawaiController extends Controller
     public function index()
     {
         //
-        $kuota=Cuti::where('nip_nrp',auth::user()->nip_nrp)->where('status','1')->get();
+        $jenis_cuti=Jenis_cuti::all();
+        // $z=[];
+
+        $kuota=Cuti::where('nip_nrp',auth::user()->nip_nrp)->whereIn('status',[1,3])->get();
+        // foreach($kuota as $kuotas){
+        // //     if($kuotas->id_jenis_cuti == $jen->id)
+        // //     $z+=$jen->jumlah;
+        // // }
+        //     foreach($jenis_cuti as $jen){
+        //         $z[]=Cuti::where('id_jenis_cuti',$jen->id)->groupBy('id_jenis_cuti')->get();
+        //     }
+        //     return $z;
+
+
+        // }
+
         $jenis_cuti=Jenis_cuti::all();
         $data=Cuti::where('nip_nrp',auth::user()->nip_nrp)->with('jenis_cuti')->get();
 
@@ -58,6 +73,14 @@ class PengajuanCutiPegawaiController extends Controller
     public function show($id)
     {
         //
+        $kuota=Cuti::where('nip_nrp',auth::user()->nip_nrp)->whereIn('status',[1,3])->where('id_jenis_cuti',$id)->get();
+        $jum=0;
+        foreach($kuota as $kuotas){
+            $jum+=$kuotas->jumlah;
+        }
+
+        return back()->with('error_code', $jum);
+        // return $jum;
     }
 
     /**
@@ -81,6 +104,7 @@ class PengajuanCutiPegawaiController extends Controller
     public function update(Request $request, $id)
     {
         //
+        $data=Cuti::findOrFail($id);
         $this->validate($request,[
             'nip_nrp'=>'required',
             'tgl_mulai'=>'required',
@@ -88,12 +112,20 @@ class PengajuanCutiPegawaiController extends Controller
             'keterangan'=>'required',
             'file' =>'mimes:pdf|max:10000',
         ]);
-        $file = $request->file('file');
-        $text = str_replace(' ', '',$file->getClientOriginalName());
-        $nama_file = time()."_".$text;
-        $tujuan_upload = 'file';
-        $file->move($tujuan_upload,$nama_file);
-        $data=Cuti::findOrFail($id);
+        if(empty($request->file('file'))){
+            $nama_file=$data->file;
+        }
+        else{
+            $this->validate($request,[
+
+                'file' =>'mimes:pdf|max:2048',
+            ]);
+            $file = $request->file('file');
+            $text = str_replace(' ', '',$file->getClientOriginalName());
+            $nama_file = time()."_".$text;
+            $tujuan_upload = 'file';
+            $file->move($tujuan_upload,$nama_file);
+        }
         $start_date = new DateTime($request->tgl_mulai);
         $end_date = new DateTime($request->tgl_selesai);
         $interval = $start_date->diff($end_date);
@@ -121,6 +153,6 @@ class PengajuanCutiPegawaiController extends Controller
         //
         $data=Cuti::findOrFail($id);
         $data->delete();
-        return back()->with('succes','Data berhasil di update');
+        return back()->with('succes','Data berhasil di Didelete');
     }
 }

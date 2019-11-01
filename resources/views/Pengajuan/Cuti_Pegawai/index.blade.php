@@ -38,8 +38,14 @@
                             $jum+=$kuotas->jumlah;
                         }
                         @endphp
+
+
                         <h3 class="kt-portlet__head-title">
-                           cuti yang telah anda ambil={{$jum}} dari
+                           cuti yang telah anda ambil={{$jum}}
+                           @foreach ($jenis_cuti as $item)
+                           <a class="badge badge-info" href="{{route('pegawai_cuti.show',$item->id)}}" ><p>{{$item->nama_cuti}}: <p>{{$item->lama_cuti}} hari</p></p></a>
+
+                       @endforeach
                         </h3>
                     </div>
                     <div class="kt-portlet__head-toolbar">
@@ -49,7 +55,7 @@
                                 <!-- <a href="#" class="btn btn-brand btn-elevate btn-icon-sm">
                                     <i class="la la-plus"></i>
                                     New Record -->
-                                    <a class="btn btn-primary" data-toggle="modal" data-target="#cutitmbh">(+)tambah</a>
+                                    <a class="btn btn-primary tambah" data-toggle="modal" data-target="#cutitmbh">(+)tambah</a>
                             </div>
                         </div>
                     </div>
@@ -102,7 +108,7 @@
                                                                 </td>
                                                                 @else
                                                                 <td class="text-center">
-                                                                        <a class="badge badge-success" href="#modal-edit-cuti<?php echo $cuti->id?>" data-toggle="modal" title="Edit"><span class="fas fa-fw fa-edit"></span></a>
+                                                                        <a class="badge badge-success edit" href="#modal-edit-cuti<?php echo $cuti->id?>" data-toggle="modal" title="Edit"><span class="fas fa-fw fa-edit"></span></a>
                                                                         <a class="badge badge-danger" href="#modal-hapus-cuti<?php echo $cuti->id?>"  data-toggle="modal" title="Hapus"><span class="fas fa-fw fa-trash"></span></a>
                                                                 </td>
                                                                 @endif
@@ -120,39 +126,35 @@
                                 <div class="modal-header">
                                     <h5 class="modal-title" id="jdlcuti">Tambah Data Cuti</h5>
                                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                        <span aria-hidden="true">&times;</span>
+                                        <span aria-hidden="true"></span>
                                     </button>
                                 </div>
-                                <div class="modal-body">
+                                <div class="modal-body tambah ">
                                         @if ($errors->any())
-                                        <div class="alert alert-danger">
                                             <ul>
                                                 @foreach ($errors->all() as $error)
                                                     <li>{{ $error }}</li>
                                                 @endforeach
                                             </ul>
-                                        </div>
-                                    @endif
-                                    <form action="{{route('P_cuti.store')}}" method="post" enctype="multipart/form-data">
-                                        @csrf
-                                        <div class="form-group">
 
+                                    @endif
+                                    <form action="{{route('P_cuti.store')}}" method="post" enctype="multipart/form-data" >
+                                        @csrf
                                         <input type="hidden" name="nip_nrp" value="{{auth::user()->nip_nrp}}">
                                             <span class="invalid-feedback" role="alert">
-                                                    <strong>alert</strong></span>
-                                        </div>
+                                            <strong>alert</strong></span>
                                         <div class="form-group">
                                                 <label for="message-text" class="form-control-label">Jenis Cuti</label>
                                                 <select name="id_jenis_cuti" id="" class="form-control" required>
                                                     <option value="">Pilih</option>
                                                     @foreach ($jenis_cuti as $jenis)
-                                                        <option value="{{$jenis->id}}" class="form-control" {{ (old('id_jenis_cuti') ==$jenis->id) ? 'selected' : ''}}>{{$jenis->nama_cuti}}</option>
+                                                        <option value="{{$jenis->id}}" class="form-control" {{ (old('id_jenis_cuti') == $jenis->id) ? 'selected' : ''}}>{{$jenis->nama_cuti}}</option>
                                                     @endforeach
                                                 </select>
                                         </div>
                                         <div class="form-group">
                                                 <label for="message-text" class="form-control-label">Tanggal Mulai</label>
-                                                <input type="date" class="form-control" name="tgl_mulai" id="message-text" required value="{{ old('tgl_mulai') }}"">
+                                                <input type="date" class="form-control" name="tgl_mulai" id="message-text" required value="{{ old('tgl_mulai') }}">
                                         </div>
                                         <div class="form-group">
                                                 <label for="message-text" class="form-control-label">Tanggal Selesai</label>
@@ -190,14 +192,13 @@
                       <!-- Modal body -->
                       <div class="modal-body">
                             @if ($errors->any())
-                            <div class="alert alert-danger">
-                                <ul>
-                                    @foreach ($errors->all() as $error)
-                                        <li>{{ $error }}</li>
-                                    @endforeach
-                                </ul>
-                            </div>
-                            @endif
+                                            <ul >
+                                                @foreach ($errors->all() as $error)
+                                                    <li style="background-color:green">{{ $error }}</li>
+                                                @endforeach
+                                            </ul>
+
+                                    @endif
                       <form action="{{route('pegawai_cuti.update',$x->id)}}" name="edit_form" method="post" enctype="multipart/form-data">
                          {{method_field('patch')}}
                          {{csrf_field()}}
@@ -212,25 +213,30 @@
                                     <select name="id_jenis_cuti" id="" class="form-control" required>
                                         <option value="">Pilih</option>
                                         @foreach ($jenis_cuti as $jenis)
-                                            <option value="{{$jenis->id}}" class="form-control" {{ (old('id_jenis_cuti') ==$jenis->id) ? 'selected' : ''}}>{{$jenis->nama_cuti}}</option>
+                                            <option value="{{$jenis->id}}" class="form-control" {{ ($x->id_jenis_cuti ==$jenis->id) ? 'selected' : ''}}>{{$jenis->nama_cuti}}</option>
                                         @endforeach
                                     </select>
                             </div>
                             <div class="form-group">
                                     <label for="message-text" class="form-control-label">Tanggal Mulai</label>
-                                    <input type="date" class="form-control" name="tgl_mulai" id="message-text" required value="{{ old('tgl_mulai') }}"">
+                                    <input type="date" class="form-control" name="tgl_mulai" id="message-text" required value="{{ $x->tgl_mulai }}">
                             </div>
                             <div class="form-group">
                                     <label for="message-text" class="form-control-label">Tanggal Selesai</label>
-                                    <input type="date" class="form-control" name="tgl_selesai" id="message-text" value="{{ old('tgl_selesai') }}" required>
+                                    <input type="date" class="form-control" name="tgl_selesai" id="message-text" value="{{ $x->tgl_selesai }}" required>
+                            </div>
+                            <div class="form-group">
+                                    <label for="message-text" class="form-control-label">Prev File</label><br>
+                                    <a href="{{asset('file'.'/'.$x->file)}}"> {{$x->file}}</a>
                             </div>
                             <div class="form-group">
                                     <label for="message-text" class="form-control-label">File</label>
-                                    <input type="file" class="form-control" name="file" id="message-text" value="{{ old('file') }}" required>
+
+                                    <input type="file" class="form-control" name="file" id="message-text" >
                             </div>
                             <div class="form-group">
                                     <label for="message-text" class="form-control-label">Keterangn</label>
-                                    <input type="text" class="form-control" name="keterangan" id="message-text" value="{{ old('keterangan') }}" required>
+                                    <input type="text" class="form-control" name="keterangan" id="message-text" value="{{ $x->keterangan }}" required>
                             </div>
 
                             <div class="modal-footer">
@@ -271,6 +277,31 @@
                 </div>
                 @endforeach
 
+                <div class="modal fade" id="jml">
+                        <div class="modal-dialog">
+                          <div class="modal-content">
+                            <!-- Modal Header -->
+                            <div class="modal-header">
+                              <h4 class="modal-title">total cuti Cuti</h4>
+                              <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            </div>
+                            <!-- Modal body -->
+                          <form action="{{route('pegawai_cuti.destroy',$x->id)}}" method="post">
+                              {{method_field('delete')}}
+                              {{csrf_field()}}
+                              <div class="modal-body">
+
+                              </div>
+                              <!-- Modal footer -->
+                              <div class="modal-footer">
+                                  <button type="button" class="btn btn-light" data-dismiss="modal">Close</button>
+                                  <input type="submit"  class="btn btn-danger" value="Hapus" />
+                              </div>
+                          </form>
+                          </div>
+                        </div>
+                      </div>
+
             </div>
         </div>
         <!-- end:: Content -->
@@ -281,9 +312,24 @@
 @section('asset-buttom')
 @if ($errors->any())
 <script>
-
     $('#cutitmbh').modal('show');
-
+    $("body").on("click",".close",function(){
+        location.reload();
+    })
+    $("body").on("click",".edit",function(){
+        // $("input[name=tgl_mulai]").val("");
+        var form=$("body");
+            form.find('ul').remove();
+    })
+</script>
+@endif
+@if (session('error_code'))
+<script>
+  $(function() {
+    $('#jml').modal('show');
+    var z={{ session('error_code') }}
+    $('.modal-body').append('<span class="help-block"><strong>Cuti Yang Telah Anda Ambil '+z+'</strong></span>');
+});
 </script>
 @endif
 <script>

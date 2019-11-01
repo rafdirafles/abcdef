@@ -207,12 +207,12 @@ date_default_timezone_set('Asia/Jakarta');
                     @if ($errors->any())
                     <div class="alert alert-danger">
                         <ul>
-                            @foreach ($errors->all() as $error)
+                            @foreach($errors->all() as $error)
                                 <li>{{ $error }}</li>
                             @endforeach
                         </ul>
                     </div>
-                @endif
+                    @endif
                     @csrf
                     <div class="form-group">
                         <label for="nip" class="form-control-label">NIP / NRP</label>

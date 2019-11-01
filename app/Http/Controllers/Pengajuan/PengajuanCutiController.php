@@ -286,7 +286,6 @@ class PengajuanCutiController extends Controller
         // return $now;
         $dump=Cuti::where('id',$request->id)->first();
         $hasil=$dump->jumlah;
-
         $jenis_cutis=Jenis_cuti::all();
         foreach($jenis_cutis as $jenis){
             if($jenis->id == $request->jenis_cuti){
