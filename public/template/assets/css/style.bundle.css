@@ -151,7 +151,7 @@ a:not([href]):not([tabindex]) {
   color: inherit;
   text-decoration: none; }
   a:not([href]):not([tabindex]):hover, a:not([href]):not([tabindex]):focus {
-    color: inherit;
+    color: yellow;
     text-decoration: none; }
   a:not([href]):not([tabindex]):focus {
     outline: 0; }
@@ -4127,7 +4127,7 @@ input[type="button"].btn-block {
 
 .badge-success {
   color: #fff;
-  background-color: rgb(16, 190, 16); }
+  background-color: #10be10; }
   a.badge-success:hover, a.badge-success:focus {
     color: #ff0;
     background-color: black; }
@@ -4247,8 +4247,8 @@ input[type="button"].btn-block {
 
 .alert-success {
   color: #056146;
-  background-color: #cef1e7;
-  border-color: #baecdd; }
+  background-color: #10be10;
+  border-color: black; }
   .alert-success hr {
     border-top-color: #a6e6d3; }
   .alert-success .alert-link {
@@ -8518,8 +8518,10 @@ a.text-dark:hover, a.text-dark:focus {
     .alert.alert-solid-primary .alert-close i {
       color: #5867dd; }
   .alert.alert-success {
-    background: #0abb87;
-    border: 1px solid #0abb87;
+    background: #10be10;
+    border: 1px solid black;
+    font-size: 14px;
+    font-weight: bold;
     color: #ffffff; }
     .alert.alert-success .alert-icon i {
       color: #ffffff; }
@@ -8614,8 +8616,10 @@ a.text-dark:hover, a.text-dark:focus {
     .alert.alert-solid-warning .alert-close i {
       color: #ffb822; }
   .alert.alert-danger {
-    background: #fd397a;
-    border: 1px solid #fd397a;
+    background: red;
+    border: 1px solid black;
+    font-size: 14px;
+    font-weight: bold;
     color: #ffffff; }
     .alert.alert-danger .alert-icon i {
       color: #ffffff; }

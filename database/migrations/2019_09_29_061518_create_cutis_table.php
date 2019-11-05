@@ -23,6 +23,7 @@ class CreateCutisTable extends Migration
             $table->date('tgl_selesai');
             $table->boolean('status');
             $table->integer('jumlah');
+            $table->string('file',100);
             $table->string('keterangan',50);
             $table->timestamps();
         });

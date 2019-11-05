@@ -127,6 +127,8 @@ Route::post('/mutasi_internal/editdivisi','Mutasi\MutasiInternalController@editD
 Route::get('/setting/getDivisi','Setting\DivisiController@getDivisi')->name('getDivisi');
 // cuti
 Route::resource('/pengajuan/P_cuti','Pengajuan\PengajuanCutiController');
+Route::post('tolak_cuti','Pengajuan\PengajuanCutiController@tolak_cuti')->name('tolak_cuti');
+Route::resource('/pengajuan/pegawai_cuti','Pengajuan\PengajuanCutiPegawaiController');
 
 Route::resource('/User/profile/pegawaiuser','User\PegawaiController');
 // Route::post('/User/profile/pegawaiuser','User\PegawaiController@update')->name('pegawaiuser.updates');

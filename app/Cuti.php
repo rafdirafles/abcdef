@@ -13,7 +13,9 @@ class Cuti extends Model
     'tgl_selesai',
     'status',
     'jumlah',
-    'keterangan',];
+    'keterangan',
+    'file',
+];
     public function jenis_cuti(){
         return $this->belongsTo('App\Jenis_cuti','id_jenis_cuti');
 

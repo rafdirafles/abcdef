@@ -57,7 +57,7 @@ License: You must have a valid license purchased only from themeforest(the above
 			<div class="kt-login__container">
 				<div class="kt-login__logo">
 
-						<img src="{{ asset('template/assets/media/logos/logoakpol.png')}}" width="90%">
+						<img src="{{ asset('template/assets/media/logos/LOGOASIQ3.png')}}" width="90%">
 
 				</div>
 				<div class="kt-login__signin">
